@@ -34,7 +34,7 @@ class MLJobs:
     def create_training_job(self):
         payload = self._build_job_payload(
             job_name="job_train_model",
-            notebook_path="/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
+            notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
             schedule="0 0 0 1 * ?"  # every 30 days
         )
         response = self.client.create_job(payload)
@@ -43,7 +43,7 @@ class MLJobs:
     def create_inference_job(self):
         payload = self._build_job_payload(
             job_name="job_inference_model",
-            notebook_path="/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/run_model",
+            notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_inference",
             schedule="0 0 0 * * ?"  # daily
         )
         response = self.client.create_job(payload)
