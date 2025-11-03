@@ -2,6 +2,7 @@
 import os
 import requests
 import json
+import uuid
 
 class DatabricksAPI:
 
@@ -55,3 +56,14 @@ class DatabricksAPI:
         payload = {"job_id" : job_id, "new_settings": payload}
         return self._call_api("POST", "/2.2/jobs/reset", payload)
 
+    def trigger_job_run(self, job_id: str):
+        """Trigger a job run by ID."""
+        token = str(uuid.uuid4())
+        payload = {
+                    "idempotency_token": token,
+                    "job_id": job_id,
+                    "queue": {
+                        "enabled": true
+                    }
+                }
+        return self._call_api("POST", "/2.2/jobs/run-now", payload)
