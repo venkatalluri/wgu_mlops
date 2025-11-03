@@ -12,8 +12,21 @@ class MLJobs:
         self.base_path = f"/Users/{self.user}/{self.repo_name}/mlops_engg"
 
 
+    def _delete_job_if_exists(self, job_name: str):
+        """Deletes an existing Databricks job if it matches the given name."""
+        jobs = self.client.list_jobs()
+        for job in jobs:
+            if job.get("settings", {}).get("name") == job_name:
+                job_id = job["job_id"]
+                print(f"Found existing job '{job_name}' (ID: {job_id}), deleting...")
+                self.client.delete_job(job_id)
+                print(f"Deleted job '{job_name}' (ID: {job_id})")
+                return True
+        print(f"No existing job found for '{job_name}'.")
+        return False
+
     def _build_job_payload(self, job_name: str, notebook_path: str, schedule: str):
-      return {
+        return {
             "name": job_name,
             "tasks": [
                 {
@@ -32,8 +45,10 @@ class MLJobs:
         }
 
     def create_training_job(self):
+        job_name="job_train_model"
+        self._delete_job_if_exists(job_name)
         payload = self._build_job_payload(
-            job_name="job_train_model",
+            job_name=job_name,
             notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
             schedule="0 0 0 1 * ?"  # every 30 days
         )
@@ -41,6 +56,8 @@ class MLJobs:
         print(f" Training job created: {response.get('job_id', 'N/A')}")
 
     def create_inference_job(self):
+        job_name="job_inference_model"
+        self._delete_job_if_exists(job_name)
         payload = self._build_job_payload(
             job_name="job_inference_model",
             notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_inference",
