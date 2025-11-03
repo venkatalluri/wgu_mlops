@@ -48,7 +48,7 @@ class DatabricksAPI:
             "repo_id": repo_id,
             "branch": branch
         }
-        return self._call_api("POST", f"/2.0/repos/{repo_id}", payload)
+        return self._call_api("PATCH", f"/2.0/repos/{repo_id}", payload)
     
     def update_job(self, job_id: str, payload: dict):
         """Update an existing job."""
