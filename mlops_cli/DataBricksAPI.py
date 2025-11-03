@@ -52,6 +52,6 @@ class DatabricksAPI:
     
     def update_job(self, job_id: str, payload: dict):
         """Update an existing job."""
-        payload["job_id"] = job_id
+        payload = {"job_id" : job_id, "new_settings": payload}
         return self._call_api("POST", "/2.2/jobs/reset", payload)
 
