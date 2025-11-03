@@ -36,13 +36,10 @@ class DatabricksAPI:
 
     def get_repo_id(self, repo_name: str):
         """Get the repository ID by name."""
-        repos = self._call_api("GET", "/2.0/repos?path_prefix=/Workspace/Repos/wgu_mlops")
-        print("********************************")
-        print(repos)
-        print
+        repos = self._call_api("GET", "/2.0/repos?path_prefix=/Workspace/Repos/wgu_mlops")['repos']
         for repo in repos:
             if repo['path'].endswith(repo_name):
-                return repo['repo_id']
+                return repo['id']
         raise ValueError(f"Repository '{repo_name}' not found.")
     
     def update_repo(self, repo_id: str, branch: str = "main"):
