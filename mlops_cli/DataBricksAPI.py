@@ -49,4 +49,9 @@ class DatabricksAPI:
             "branch": branch
         }
         return self._call_api("POST", f"/2.0/repos/{repo_id}", payload)
+    
+    def update_job(self, job_id: str, payload: dict):
+        """Update an existing job."""
+        payload["job_id"] = job_id
+        return self._call_api("POST", "/2.2/jobs/reset", payload)
 

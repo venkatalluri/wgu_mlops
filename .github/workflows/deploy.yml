@@ -6,6 +6,12 @@ on:
       - main
   workflow_dispatch:  # allow manual trigger
 
+env:
+  DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+  DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+  DATABRICKS_USER: ${{ secrets.DATABRICKS_USER }}
+  DATABRICKS_REPO_NAME: ${{ secrets.DATABRICKS_REPO_NAME }}
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -25,12 +31,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Create Databricks Jobs
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-          DATABRICKS_USER: ${{ secrets.DATABRICKS_USER }}
-          DATABRICKS_REPO_NAME: ${{ secrets.DATABRICKS_REPO_NAME }}
+      - name: Update repos in Databricks
         run: |
-          echo "Deploying Databricks Jobs using MLOps CLI"
+          echo "Updating Databricks repo ${{ env.DATABRICKS_REPO_NAME }} ..."
+          python -m mlops_cli.cli update-repo
+      
+      - name: Create or update Databricks jobs
+        run: |
+          echo "Createing or updating Databricks jobs ..."
           python -m mlops_cli.cli create-jobs

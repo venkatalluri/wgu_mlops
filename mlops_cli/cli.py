@@ -4,7 +4,7 @@ from mlops_cli.DataBricksAPI import DatabricksAPI
 from mlops_cli.MLJobs import MLJobs
 def main():
     parser = argparse.ArgumentParser(description="MLOps CLI for Databricks automation")
-    parser.add_argument("command", choices=["create-jobs", "list-jobs", "delete-job"],
+    parser.add_argument("command", choices=["update-repo","create-jobs", "list-jobs", "delete-job"],
                         help="Action to perform")
     parser.add_argument("--job-id", help="Job ID to delete (required for delete-job)")
     args = parser.parse_args()
@@ -13,7 +13,9 @@ def main():
     client = DatabricksAPI()
     job_creator = MLJobs(client)
 
-    if args.command == "create-jobs":
+    if args.command == "update-repo":
+        job_creator.update_repository()
+    elif args.command == "create-jobs":
         job_creator.create_training_job()
         job_creator.create_inference_job()
     elif args.command == "list-jobs":

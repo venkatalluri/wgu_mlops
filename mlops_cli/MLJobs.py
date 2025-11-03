@@ -47,10 +47,7 @@ class MLJobs:
         job_id = self._find_job_id(job_name)
         if job_id:
             print(f"🔄 Updating existing job '{job_name}' (ID: {job_id}) ...")
-            response = self.client._call_api("POST", "jobs/reset", {
-                "job_id": job_id,
-                "new_settings": payload
-            })
+            response = self.client.update_job(job_id, payload)
             print(f"✅ Job '{job_name}' updated successfully (ID: {job_id})")
             return job_id
         else:
