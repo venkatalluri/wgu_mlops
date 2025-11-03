@@ -36,7 +36,10 @@ class DatabricksAPI:
 
     def get_repo_id(self, repo_name: str):
         """Get the repository ID by name."""
-        repos = self._call_api("GET", "/2.0/repos?path_prefix=/Workspace/Repos/wgu_mlops")['repos']
+        repos = self._call_api("GET", "/2.0/repos?path_prefix=/Workspace/Repos/wgu_mlops")
+        print("********************************")
+        print(repos)
+        print
         for repo in repos:
             if repo['path'].endswith(repo_name):
                 return repo['repo_id']
