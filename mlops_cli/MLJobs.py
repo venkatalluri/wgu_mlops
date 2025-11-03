@@ -15,7 +15,11 @@ class MLJobs:
     def _delete_job_if_exists(self, job_name: str):
         """Deletes an existing Databricks job if it matches the given name."""
         jobs = self.client.list_jobs()
+        jobs = jobs['jobs']
+        print("**********************************")
         for job in jobs:
+            print(job)
+            print("**********************************")
             if job.get("settings", {}).get("name") == job_name:
                 job_id = job["job_id"]
                 print(f"Found existing job '{job_name}' (ID: {job_id}), deleting...")

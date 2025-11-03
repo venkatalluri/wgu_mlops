@@ -1,6 +1,7 @@
 # mlops_cli/databricks_client.py
 import os
 import requests
+import json
 
 class DatabricksAPI:
 
@@ -18,7 +19,8 @@ class DatabricksAPI:
         response = requests.request(method, url, headers=self.headers, json=payload)
         if not response.ok:
             raise Exception(f"Databricks API error {response.status_code}: {response.text}")
-        return response.json() if response.text else {}
+        result= response.json() if response.text else {}
+        return result
 
     def create_job(self, payload: dict):
         """Create a new job."""
@@ -31,3 +33,5 @@ class DatabricksAPI:
     def delete_job(self, job_id: str):
         """Delete a job by ID."""
         return self._call_api("POST", "jobs/delete", {"job_id": job_id})
+
+
