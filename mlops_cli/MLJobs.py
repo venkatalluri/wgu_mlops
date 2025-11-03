@@ -9,7 +9,7 @@ class MLJobs:
         self.repo_name = os.getenv("DATABRICKS_REPO_NAME", "wgu_mlops")
 
         # Base repo path for notebooks
-        self.base_path = f"/Repos/{self.user}/{self.repo_name}/mlops_engg"
+        self.base_path = f"/Users/{self.user}/{self.repo_name}/mlops_engg"
 
 
     def _build_job_payload(self, job_name: str, notebook_path: str, schedule: str):
@@ -34,7 +34,7 @@ class MLJobs:
     def create_training_job(self):
         payload = self._build_job_payload(
             job_name="job_train_model",
-            notebook_path="/Repos/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
+            notebook_path="/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
             schedule="0 0 0 1 * ?"  # every 30 days
         )
         response = self.client.create_job(payload)
@@ -43,7 +43,7 @@ class MLJobs:
     def create_inference_job(self):
         payload = self._build_job_payload(
             job_name="job_inference_model",
-            notebook_path="/Repos/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/run_model",
+            notebook_path="/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/run_model",
             schedule="0 0 0 * * ?"  # daily
         )
         response = self.client.create_job(payload)
