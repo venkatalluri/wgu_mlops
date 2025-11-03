@@ -1,50 +1,74 @@
 # Databricks notebook source
 # ============================================================
-# INFERENCE NOTEBOOK – Loads latest model from MLflow Registry
-# Runs prediction on sample data and saves results
+# JOB 2: INFERENCE NOTEBOOK
+# - Loads registered model from MLflow Model Registry
+# - Loads input data (could be from CSV, DBFS, or sklearn dataset)
+# - Runs inference
+# - Saves results with timestamp
 # ============================================================
 
-import mlflow
+# COMMAND ----------
 import pandas as pd
+import numpy as np
+from sklearn.datasets import load_iris
+import mlflow
+import mlflow.sklearn
 from datetime import datetime
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+
 
 # ------------------------------------------------------------
-# 1️⃣  Load latest production model
+# 1 Load data for inference
 # ------------------------------------------------------------
-model_name = "IrisClassifier"
+iris = load_iris(as_frame=True)
+df = iris.frame.copy()
+df.columns = ["sepal_length", "sepal_width", "petal_length", "petal_width", "target"]
 
-try:
-    model = mlflow.sklearn.load_model(f"models:/{model_name}/Latest")
-    print(f"✅ Loaded model: {model_name}")
-except Exception as e:
-    print(f"❌ Failed to load model '{model_name}'. Error: {e}")
-    raise
+# Create engineered features (same as in training)
+df["petal_area"] = df["petal_length"] * df["petal_width"]
+df["sepal_area"] = df["sepal_length"] * df["sepal_width"]
 
-# ------------------------------------------------------------
-# 2️⃣  Prepare new data for prediction
-# ------------------------------------------------------------
-sample_data = pd.DataFrame(
-    [
-        [5.1, 3.5, 1.4, 0.2],
-        [6.7, 3.1, 4.4, 1.4],
-        [7.2, 3.6, 6.1, 2.5],
-    ],
-    columns=["f1", "f2", "f3", "f4"],
-)
+# Drop target to simulate unlabeled data
+X_new = df.drop(columns=["target"])
 
-# ------------------------------------------------------------
-# 3️⃣  Run inference
-# ------------------------------------------------------------
-preds = model.predict(sample_data)
-sample_data["prediction"] = preds
+display(X_new.head())
 
-print("✅ Inference complete. Predictions:")
-print(sample_data)
-
+# COMMAND ----------
 # ------------------------------------------------------------
-# 4️⃣  Save results to DBFS (Databricks File System)
+# 2️⃣ Load the latest registered model from MLflow
 # ------------------------------------------------------------
-output_path = f"/dbfs/tmp/inference_results_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
-sample_data.to_csv(output_path, index=False)
+MODEL_NAME = "IrisClassifier"
 
-print(f"✅ Predictions saved to: {output_path}")
+# Load the latest production model (you can also specify stage="Staging" or version)
+model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/latest")
+
+print(f"✅ Loaded model '{MODEL_NAME}' from MLflow registry.")
+
+# COMMAND ----------
+# ------------------------------------------------------------
+# 3️⃣ Perform inference
+# ------------------------------------------------------------
+preds = model.predict(X_new)
+results_df = X_new.copy()
+results_df["prediction"] = preds
+results_df["inference_timestamp"] = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+display(results_df.head())
+
+# COMMAND ----------
+# ------------------------------------------------------------
+# 4️⃣ Save inference results
+# ------------------------------------------------------------
+
+# Option 1: Save to DBFS CSV
+output_path = f"/dbfs/tmp/inference_results_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+results_df.to_csv(output_path, index=False)
+print(f"✅ Inference results saved to: {output_path}")
+
+# Option 2 (optional): Save to Delta table for history
+spark_df = spark.createDataFrame(results_df)
+spark_df.write.mode("append").format("delta").saveAsTable("mlops_inference_results")
+
+print("✅ Inference results appended to Delta table: mlops_inference_results")
