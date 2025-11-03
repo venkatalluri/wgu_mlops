@@ -76,4 +76,4 @@ class MLJobs:
             schedule="0 0 0 * * ?"  # daily
         )
         job_id=self._create_or_update_job(job_name, payload)
-        print(f" Training job created: {job_id}")
+        print(f" Inference job created: {job_id}")
