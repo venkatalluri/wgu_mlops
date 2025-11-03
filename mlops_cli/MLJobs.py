@@ -60,11 +60,20 @@ class MLJobs:
             print(f"✅ Job '{job_name}' created (ID: {new_id})")
             return new_id
 
+    def update_repository(self):
+        repo_id = self.client.get_repo_id(self.repo_name)
+        if repo_id:
+            print(f"🔄 Updating repository '{self.repo_name}' (ID: {repo_id}) ...")
+            response = self.client.update_repo(repo_id, branch="main")
+            print(f"✅ Repository '{self.repo_name}' updated successfully.")
+        else:
+            print(f"❌ Repository '{self.repo_name}' not found.")
+    
     def create_training_job(self):
         job_name="job_train_model"
         payload = self._build_job_payload(
             job_name=job_name,
-            notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg_nb/model_traning",
+            notebook_path="/Workspace/Repos/wgu_mlops/wgu_mlops/mlops_engg_nb/model_traning",
             schedule="0 0 0 1 * ?"  # every 30 days
         )
         job_id=self._create_or_update_job(job_name, payload)
@@ -74,7 +83,7 @@ class MLJobs:
         job_name="job_inference_model"
         payload = self._build_job_payload(
             job_name="job_inference_model",
-            notebook_path="/Workspace/Users/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg_nb/model_inference",
+            notebook_path="/Workspace/Repos/wgu_mlops/wgu_mlops/mlops_engg_nb/model_inference",
             schedule="0 0 0 * * ?"  # daily
         )
         job_id=self._create_or_update_job(job_name, payload)

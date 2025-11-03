@@ -15,7 +15,7 @@ class DatabricksAPI:
 
     def _call_api(self, method: str, endpoint: str, payload=None):
         
-        url = f"{self.host}/api/{self.api_version}/{endpoint}"
+        url = f"{self.host}/api/{endpoint}"
         response = requests.request(method, url, headers=self.headers, json=payload)
         if not response.ok:
             raise Exception(f"Databricks API error {response.status_code}: {response.text}")
@@ -24,14 +24,29 @@ class DatabricksAPI:
 
     def create_job(self, payload: dict):
         """Create a new job."""
-        return self._call_api("POST", "jobs/create", payload)
+        return self._call_api("POST", "/2.2/jobs/create", payload)
 
     def list_jobs(self):
         """List all jobs."""
-        return self._call_api("GET", "jobs/list")
+        return self._call_api("GET", "/2.2/jobs/list")
 
     def delete_job(self, job_id: str):
         """Delete a job by ID."""
-        return self._call_api("POST", "jobs/delete", {"job_id": job_id})
+        return self._call_api("POST", "/2.2/jobs/delete", {"job_id": job_id})
 
+    def get_repo_id(self, repo_name: str):
+        """Get the repository ID by name."""
+        repos = self._call_api("GET", "/2.0/repos?path_prefix=/Workspace/Repos/wgu_mlops")['repos']
+        for repo in repos:
+            if repo['path'].endswith(repo_name):
+                return repo['repo_id']
+        raise ValueError(f"Repository '{repo_name}' not found.")
+    
+    def update_repo(self, repo_id: str, branch: str = "main"):
+        """Update the repository to the latest commit on the specified branch."""
+        payload = {
+            "repo_id": repo_id,
+            "branch": branch
+        }
+        return self._call_api("POST", f"/2.0/repos/{repo_id}", payload)
 
