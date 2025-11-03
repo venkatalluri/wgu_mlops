@@ -5,17 +5,23 @@ from mlops_cli.DataBricksAPI import DatabricksAPI
 class MLJobs:
     def __init__(self, client: DatabricksAPI):
         self.client = client
-        self.cluster_id = os.getenv("DATABRICKS_CLUSTER_ID")
+        self.user = os.getenv("DATABRICKS_USER", "alluri.venkat1988@gmail.com")
+        self.repo_name = os.getenv("DATABRICKS_REPO_NAME", "wgu_mlops")
+
+        # Base repo path for notebooks
+        self.base_path = f"/Repos/{self.user}/{self.repo_name}/mlops_engg"
+
 
     def _build_job_payload(self, job_name: str, notebook_path: str, schedule: str):
-        """Builds the JSON payload for the job creation request."""
-        return {
+      return {
             "name": job_name,
             "tasks": [
                 {
-                    "task_key": job_name,
-                    "notebook_task": {"notebook_path": notebook_path},
-                    "existing_cluster_id": self.cluster_id,
+                    "task_key": f"{job_name}_task",
+                    "notebook_task": {
+                        "notebook_path": notebook_path
+                    },
+                    "compute": {"compute_type": "SERVERLESS"},
                 }
             ],
             "schedule": {
@@ -28,8 +34,8 @@ class MLJobs:
     def create_training_job(self):
         payload = self._build_job_payload(
             job_name="job_train_model",
-            notebook_path="/Repos/venkat.alluri@wgu.edu/mlops-assessment/notebooks/train_model",
-            schedule="0 0 1 * *"  # every 30 days
+            notebook_path="/Repos/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/model_traning",
+            schedule="0 0 0 1 * ?"  # every 30 days
         )
         response = self.client.create_job(payload)
         print(f" Training job created: {response.get('job_id', 'N/A')}")
@@ -37,8 +43,8 @@ class MLJobs:
     def create_inference_job(self):
         payload = self._build_job_payload(
             job_name="job_inference_model",
-            notebook_path="/Repos/venkat.alluri@wgu.edu/mlops-assessment/notebooks/run_inference",
-            schedule="0 0 * * *"  # daily
+            notebook_path="/Repos/alluri.venkat1988@gmail.com/wgu_mlops/mlops_engg/run_model",
+            schedule="0 0 0 * * ?"  # daily
         )
         response = self.client.create_job(payload)
         print(f"Inference job created: {response.get('job_id', 'N/A')}")
