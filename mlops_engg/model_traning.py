@@ -20,6 +20,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 import mlflow
 import mlflow.sklearn
 from mlflow.models.signature import infer_signature
+from mlflow.tracking import MlflowClient
 
 # COMMAND ----------
 # MLflow setup
@@ -78,6 +79,9 @@ with mlflow.start_run(run_name="iris_logreg_train"):
     registered_model = mlflow.register_model(model_uri, "IrisClassifier")
 
     print(f"✅ Model registered: {registered_model.name}")
+    client = MlflowClient()
+    client.set_registered_model_alias("IrisClassifier", "production", registered_model.version)
+    print("✅ Alias 'production' set on IrisClassifier.")
 
 # COMMAND ----------
 # Optional visualization / validation

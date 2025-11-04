@@ -37,12 +37,17 @@ display(X_new.head())
 
 # COMMAND ----------
 # ------------------------------------------------------------
-# 2️⃣ Load the latest registered model from MLflow
+# 2️⃣ Load model by alias
 # ------------------------------------------------------------
+CATALOG = "main"
+SCHEMA = "default"
 MODEL_NAME = "IrisClassifier"
+ALIAS = "production"
 
-# Load the latest production model (you can also specify stage="Staging" or version)
-model = mlflow.pyfunc.load_model(model_uri=f"models:/{MODEL_NAME}/latest")
+model_uri = f"models:/{CATALOG}/{SCHEMA}/{MODEL_NAME}@{ALIAS}"
+model = mlflow.pyfunc.load_model(model_uri=model_uri)
+print(f"✅ Loaded model from MLflow registry: {model_uri}")
+
 
 print(f"✅ Loaded model '{MODEL_NAME}' from MLflow registry.")
 
