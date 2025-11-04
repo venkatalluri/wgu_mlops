@@ -15,6 +15,7 @@ import mlflow
 import mlflow.sklearn
 from datetime import datetime
 from pyspark.sql import SparkSession
+from mlflow import MlflowClient
 
 spark = SparkSession.builder.getOrCreate()
 
@@ -43,9 +44,15 @@ CATALOG = "main"
 SCHEMA = "default"
 MODEL_NAME = "IrisClassifier"
 ALIAS = "production"
-
-model_uri = f"models:/{CATALOG}/{SCHEMA}/{MODEL_NAME}@{ALIAS}"
-model = mlflow.pyfunc.load_model(model_uri)
+client = MlflowClient()
+# Get information about the model
+model_info = client.get_model_version_by_alias(MODEL_NAME, ALIAS)
+model_tags = model_info.tags
+print(model_tags)
+# model_uri = f"models:/{CATALOG}/{SCHEMA}/{MODEL_NAME}@{ALIAS}"
+model_uri = f"models:/{MODEL_NAME}@{ALIAS}"
+#model = mlflow.pyfunc.load_model(model_uri)
+model = mlflow.sklearn.load_model(model_uri)
 print(f"✅ Loaded model from MLflow registry: {model_uri}")
 
 
