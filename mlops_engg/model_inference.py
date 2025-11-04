@@ -79,7 +79,7 @@ display(results_df.head())
 
 # Option 1: Save to Local CSV
 timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
-output_dir = f"/Workspace/Users/{os.getenv('USER', 'alluri.venkat1988@gmail.com')}/tmp"
+output_dir = f"/Workspace/Users/alluri.venkat1988@gmail.com/inference_results"
 os.makedirs(output_dir, exist_ok=True)
 output_path = f"{output_dir}/inference_results_{timestamp}.csv"
 
