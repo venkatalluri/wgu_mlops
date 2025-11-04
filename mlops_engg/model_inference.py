@@ -13,10 +13,13 @@ import numpy as np
 from sklearn.datasets import load_iris
 import mlflow
 import mlflow.sklearn
-from datetime import datetime
+from datetime import datetime, timezone
 from pyspark.sql import SparkSession
 from mlflow import MlflowClient
+import os
 
+
+datetime.now(timezone.utc)
 spark = SparkSession.builder.getOrCreate()
 
 
@@ -74,12 +77,17 @@ display(results_df.head())
 # 4️⃣ Save inference results
 # ------------------------------------------------------------
 
-# Option 1: Save to DBFS CSV
-output_path = f"/dbfs/tmp/inference_results_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+# Option 1: Save to Local CSV
+timestamp = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')
+output_dir = f"/Workspace/Users/{os.getenv('USER', 'alluri.venkat1988@gmail.com')}/tmp"
+os.makedirs(output_dir, exist_ok=True)
+output_path = f"{output_dir}/inference_results_{timestamp}.csv"
+
 results_df.to_csv(output_path, index=False)
-print(f"✅ Inference results saved to: {output_path}")
+print(f"✅ Inference results saved to workspace path: {output_path}")
 
 # Option 2 (optional): Save to Delta table for history
+results_df["inference_timestamp"] = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 spark_df = spark.createDataFrame(results_df)
 spark_df.write.mode("append").format("delta").saveAsTable("mlops_inference_results")
 
