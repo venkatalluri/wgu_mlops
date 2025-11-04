@@ -45,7 +45,7 @@ MODEL_NAME = "IrisClassifier"
 ALIAS = "production"
 
 model_uri = f"models:/{CATALOG}/{SCHEMA}/{MODEL_NAME}@{ALIAS}"
-model = mlflow.pyfunc.load_model(model_uri=model_uri)
+model = mlflow.pyfunc.load_model(model_uri)
 print(f"✅ Loaded model from MLflow registry: {model_uri}")
 
 
